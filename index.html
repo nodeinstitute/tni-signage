@@ -8,10 +8,15 @@
 <style>
   html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
   .slide {
-    position: fixed; inset: 0; width: 100%; height: 100%;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;   /* no "inset": older Android WebViews ignore it */
     object-fit: contain; opacity: 0; transition: opacity 0.8s ease;
   }
   .slide.on { opacity: 1; }
+  /* shown until the first slide is up, so a black screen always says why */
+  #status {
+    position: fixed; left: 0; right: 0; top: 45%; z-index: 9; text-align: center;
+    font: 22px/1.5 sans-serif; color: #888; padding: 0 24px;
+  }
   #debug {
     position: fixed; left: 8px; bottom: 8px; z-index: 9; display: none;
     font: 14px/1.4 monospace; color: #0f0; background: rgba(0,0,0,.7); padding: 6px 8px; white-space: pre;
@@ -23,6 +28,15 @@
 <img class="slide" id="b" alt="">
 <video class="slide" id="v" muted playsinline preload="auto"></video>
 <div id="debug"></div>
+<div id="status">TNI Signage · starting…</div>
+<script>
+/* any script error before the first slide is shown on screen instead of leaving it black */
+window.onerror = function (msg, src, line) {
+  var s = document.getElementById("status");
+  if (s && s.style.display !== "none") s.textContent = "TNI Signage · error: " + msg + " (line " + line + ")";
+};
+window.addEventListener("unhandledrejection", function (e) { window.onerror(String(e.reason), "", 0); });
+</script>
 <script>
 /* The NODE Institute signage player.
    Plays the slides and videos listed in slides.json in order, re-reads slides.json at the start of
@@ -42,7 +56,9 @@ const vid = document.getElementById("v");
 const dbg = document.getElementById("debug");
 let front = 0, set = null, pending = null, index = -1, lastCheck = 0, lastError = "", note = "", started = Date.now();
 
-function log(msg) { lastError = msg; render(); }
+const statusEl = document.getElementById("status");
+function status(msg) { if (statusEl.style.display !== "none") statusEl.textContent = "TNI Signage · " + msg; }
+function log(msg) { lastError = msg; status(msg); render(); }
 function render() {
   if (!DEBUG) return;
   dbg.style.display = "block";
@@ -94,17 +110,32 @@ function check() {
   if (!checking) checking = doCheck().finally(() => { checking = null; });
   return checking;
 }
+/* slides.json asks for another player version: load the page again, bypassing caches (a new ?v=
+   address), at most once every 3 minutes. GitHub Pages lets browsers keep the page for 10 minutes,
+   so a plain reload could fetch the old page again and again (that loop flickered on 2 Oct). */
+function updatePlayer(wanted) {
+  const KEY = "tni-signage-reload";
+  let last = 0;
+  try { last = Number(localStorage.getItem(KEY) || 0); } catch (e) {}
+  if (Date.now() - last < 3 * 60 * 1000) { log("waiting for player version " + wanted); return; }
+  try { localStorage.setItem(KEY, String(Date.now())); } catch (e) {}
+  location.replace(location.pathname + "?v=" + wanted + "-" + Date.now() + (DEBUG ? "&debug" : ""));
+}
+
 async function doCheck() {
   lastCheck = Date.now();
   try {
     const r = await fetch("slides.json?t=" + Date.now(), { cache: "no-store" });
     if (!r.ok) throw new Error("slides.json HTTP " + r.status);
     const m = await r.json();
-    if (m.player && m.player !== PLAYER) { location.reload(); return; }
+    if (m.player && m.player !== PLAYER) { updatePlayer(m.player); return; }
     if (!m.slides || !m.slides.length) throw new Error("slides.json has no slides");
     if (set && m.id === set.id && !pending) { pruneCache(set); lastError = ""; return; }   // current: drop leftovers
     if (pending && m.id === pending.id) { lastError = ""; return; }
-    await Promise.all(m.slides.filter(s => s.type !== "video").map(s => preload(s.src)));
+    const images = m.slides.filter(s => s.type !== "video");
+    let loaded = 0;
+    if (!set) status("loading slides 0 of " + images.length);
+    await Promise.all(images.map(s => preload(s.src).then(x => { loaded++; if (!set) status("loading slides " + loaded + " of " + images.length); return x; })));
     if (set) await cacheVideos(m); else cacheVideos(m).catch(e => log(e.message || String(e)));
     pending = m;
     try { localStorage.setItem(STORE, JSON.stringify(m)); } catch (e) {}
@@ -136,7 +167,7 @@ function playVideo(s) {
     };
     const startTimer = setTimeout(() => finish(false), 20000);
     const endTimer = setTimeout(() => finish(true), 1000 * ((s.duration || 180) + 20));
-    vid.onplaying = () => { clearTimeout(startTimer); vid.classList.add("on"); layers.forEach(l => l.classList.remove("on")); render(); };
+    vid.onplaying = () => { clearTimeout(startTimer); vid.classList.add("on"); layers.forEach(l => l.classList.remove("on")); statusEl.style.display = "none"; render(); };
     vid.onended = () => finish(true);
     vid.onerror = () => finish(false);
     vid.muted = true;
@@ -170,7 +201,7 @@ async function next() {
     return;
   }
   const back = layers[1 - front];
-  back.onload = () => { back.classList.add("on"); layers[front].classList.remove("on"); front = 1 - front; stopVideo(); render(); };
+  back.onload = () => { back.classList.add("on"); layers[front].classList.remove("on"); front = 1 - front; stopVideo(); statusEl.style.display = "none"; render(); };
   back.onerror = () => log("cannot show " + s.src);
   back.src = s.src;
   // a daily reload around 4 am keeps a long-running WebView fresh

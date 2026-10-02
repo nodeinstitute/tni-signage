@@ -51,9 +51,10 @@ self.addEventListener("fetch", e => {
     }));
     return;
   }
-  // page, sw and slides.json: network first, cached copy when offline
+  // page, sw and slides.json: network first (always asking the server, never the browser's own
+  // 10-minute cache, so an update cannot meet an old page), cached copy when offline
   const key = url.origin + url.pathname;
-  e.respondWith(fetch(e.request).then(res => {
+  e.respondWith(fetch(url.href, { cache: "no-cache", credentials: "same-origin" }).then(res => {
     if (res.ok) { const copy = res.clone(); caches.open(PAGE).then(c => c.put(key, copy)); }
     return res;
   }).catch(() => caches.open(PAGE).then(c => c.match(key)).then(hit => hit || Response.error())));
