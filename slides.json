@@ -1,6 +1,6 @@
 {
- "id": "2de6317e36c4",
- "published": "2026-10-02 21:48",
+ "id": "1d189a445a06",
+ "published": "2026-10-02 21:56",
  "player": 2,
  "duration": 10.0,
  "slides": [
@@ -21,6 +21,12 @@
    "name": "TNI_Signage_2026-10-02_UTM_04.png"
   },
   {
+   "type": "video",
+   "src": "https://data.thenodeinstitute.org/public.php/dav/files/fSDsPbnZ57bgtcr/The_NODE_Showreel_Vertical_V01_signage.mp4?v=0619c93a",
+   "name": "The_NODE_Showreel_Vertical_V01_signage.mp4",
+   "duration": 90.0
+  },
+  {
    "src": "slides/1c7b472d38afca37.png",
    "name": "TNI_Signage_2026-10-02_UTM_05.png"
   },
@@ -35,6 +41,12 @@
   {
    "src": "slides/69c186da9e44226b.jpg",
    "name": "TNI_Signage_2026-10-02_UTM_08.png"
+  },
+  {
+   "type": "video",
+   "src": "https://data.thenodeinstitute.org/public.php/dav/files/fSDsPbnZ57bgtcr/TNI_RTXXXVI_CM_Vert_signage.mp4?v=17ab99c6",
+   "name": "TNI_RTXXXVI_CM_Vert_signage.mp4",
+   "duration": 37.0
   },
   {
    "src": "slides/51de172a5f7a41f2.png",
@@ -91,6 +103,12 @@
   {
    "src": "slides/a72770566bdce09a.png",
    "name": "TNI_Signage_2026-10-02_UTM_22.png"
+  },
+  {
+   "type": "video",
+   "src": "https://data.thenodeinstitute.org/public.php/dav/files/fSDsPbnZ57bgtcr/TNI_RTXXXV_CM_Vert_signage.mp4?v=f2851c85",
+   "name": "TNI_RTXXXV_CM_Vert_signage.mp4",
+   "duration": 22.7
   }
  ]
 }
