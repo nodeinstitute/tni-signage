@@ -52,6 +52,9 @@ const FIRST_VIDEO_DELAY = 2 * 60 * 1000;  // first visit: wait before downloadin
 const FRAMED_DELAY = 60 * 1000;      // inside a frame (iiSignage editor): show one still this long first
 const STORE = "tni-signage-manifest";
 const DEBUG = /[?&]debug\b/.test(location.search);
+// test switches (iiSignage save problem, 2 Oct): ?nosw = no offline storage, ?still = first slide only, forever
+const NOSW = /[?&]nosw\b/.test(location.search);
+const STILL = /[?&]still\b/.test(location.search);
 
 const layers = [document.getElementById("a"), document.getElementById("b")];
 const vid = document.getElementById("v");
@@ -218,8 +221,8 @@ async function next() {
 }
 
 function start() {
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
-  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});  // ask the browser not to evict the videos
+  if (!NOSW && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  if (!NOSW && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});  // ask the browser not to evict the videos
   try { const saved = JSON.parse(localStorage.getItem(STORE) || "null"); if (saved && saved.slides) set = saved; } catch (e) {}
   next();
 }
@@ -238,7 +241,9 @@ async function preview() {
 }
 
 const FRAMED = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
-if (FRAMED && !/[?&]full\b/.test(location.search)) {
+if (STILL) {
+  preview();
+} else if (FRAMED && !/[?&]full\b/.test(location.search)) {
   preview();
   setTimeout(start, FRAMED_DELAY);   // the first real slide fades in over the still (layer a)
 } else {
