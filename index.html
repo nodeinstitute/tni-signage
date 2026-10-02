@@ -21,6 +21,7 @@
 <body>
 <img class="slide" id="a" alt="">
 <img class="slide" id="b" alt="">
+<video class="slide" id="v" muted playsinline preload="auto"></video>
 <div id="debug"></div>
 <script>
 /* The NODE Institute signage player.
@@ -28,13 +29,14 @@
    round (and at least every CHECK_MS), switches to a new set only after all its images have
    loaded, and keeps playing the last good set when the network is down. Publish a new set with
    indesign-mcp\publish_signage_web.py; the screen never needs touching. */
-const PLAYER = 1;                    // bump together with "player" in slides.json to force a reload
+const PLAYER = 2;                    // bump together with "player" in slides.json to force a reload
 const CHECK_MS = 5 * 60 * 1000;      // re-read slides.json at least this often
 const FALLBACK_DURATION = 30;        // seconds per slide if slides.json does not say
 const STORE = "tni-signage-manifest";
 const DEBUG = /[?&]debug\b/.test(location.search);
 
 const layers = [document.getElementById("a"), document.getElementById("b")];
+const vid = document.getElementById("v");
 const dbg = document.getElementById("debug");
 let front = 0, set = null, pending = null, index = -1, lastCheck = 0, lastError = "", started = Date.now();
 
@@ -68,7 +70,8 @@ async function check() {
     if (m.player && m.player !== PLAYER) { location.reload(); return; }
     if (!m.slides || !m.slides.length) throw new Error("slides.json has no slides");
     if (set && m.id === set.id) { lastError = ""; return; }
-    await Promise.all(m.slides.map(s => preload(s.src)));   // only switch to a set that is fully loaded
+    // only switch to a set whose images are all loaded; videos stream from Nextcloud when they play
+    await Promise.all(m.slides.filter(s => s.type !== "video").map(s => preload(s.src)));
     pending = m;
     try { localStorage.setItem(STORE, JSON.stringify(m)); } catch (e) {}
     pruneCache(m);
@@ -87,6 +90,35 @@ async function pruneCache(m) {
   } catch (e) {}
 }
 
+/* Play one video full screen, muted, to its end. Resolves false when it cannot start within
+   20 s (offline, missing file), so the player moves on instead of hanging on a black screen. */
+function playVideo(s) {
+  return new Promise(resolve => {
+    let done = false;
+    const finish = ok => {
+      if (done) return; done = true;
+      clearTimeout(startTimer); clearTimeout(endTimer);
+      vid.onplaying = vid.onended = vid.onerror = null;
+      resolve(ok);
+    };
+    const startTimer = setTimeout(() => finish(false), 20000);
+    const endTimer = setTimeout(() => finish(true), 1000 * ((s.duration || 180) + 20));
+    vid.onplaying = () => { clearTimeout(startTimer); vid.classList.add("on"); layers.forEach(l => l.classList.remove("on")); render(); };
+    vid.onended = () => finish(true);
+    vid.onerror = () => finish(false);
+    vid.muted = true;
+    vid.src = s.src;
+    const p = vid.play();
+    if (p && p.catch) p.catch(() => finish(false));
+  });
+}
+
+function stopVideo() {
+  if (!vid.classList.contains("on")) return;
+  vid.classList.remove("on");
+  setTimeout(() => { if (!vid.classList.contains("on")) { vid.pause(); vid.removeAttribute("src"); vid.load(); } }, 900);
+}
+
 function duration(s) { return 1000 * (s.duration || (set && set.duration) || FALLBACK_DURATION); }
 
 async function next() {
@@ -95,8 +127,15 @@ async function next() {
   if (pending && wrap) { set = pending; pending = null; index = -1; }
   if (!set) { setTimeout(next, 15000); return; }             // nothing to show yet: retry
   index = (index + 1) % set.slides.length;
-  const s = set.slides[index], back = layers[1 - front];
-  back.onload = () => { back.classList.add("on"); layers[front].classList.remove("on"); front = 1 - front; render(); };
+  const s = set.slides[index];
+  if (s.type === "video") {
+    render();
+    if (!(await playVideo(s))) log("video skipped: " + (s.name || s.src));
+    next();
+    return;
+  }
+  const back = layers[1 - front];
+  back.onload = () => { back.classList.add("on"); layers[front].classList.remove("on"); front = 1 - front; stopVideo(); render(); };
   back.onerror = () => log("cannot show " + s.src);
   back.src = s.src;
   // a daily reload around 4 am keeps a long-running WebView fresh
