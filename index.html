@@ -102,7 +102,8 @@ async function doCheck() {
     const m = await r.json();
     if (m.player && m.player !== PLAYER) { location.reload(); return; }
     if (!m.slides || !m.slides.length) throw new Error("slides.json has no slides");
-    if ((set && m.id === set.id) || (pending && m.id === pending.id)) { lastError = ""; return; }
+    if (set && m.id === set.id && !pending) { pruneCache(set); lastError = ""; return; }   // current: drop leftovers
+    if (pending && m.id === pending.id) { lastError = ""; return; }
     await Promise.all(m.slides.filter(s => s.type !== "video").map(s => preload(s.src)));
     if (set) await cacheVideos(m); else cacheVideos(m).catch(e => log(e.message || String(e)));
     pending = m;
