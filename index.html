@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>TNI Signage</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  .slide {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    object-fit: contain; opacity: 0; transition: opacity 0.8s ease;
+  }
+  .slide.on { opacity: 1; }
+  #debug {
+    position: fixed; left: 8px; bottom: 8px; z-index: 9; display: none;
+    font: 14px/1.4 monospace; color: #0f0; background: rgba(0,0,0,.7); padding: 6px 8px; white-space: pre;
+  }
+</style>
+</head>
+<body>
+<img class="slide" id="a" alt="">
+<img class="slide" id="b" alt="">
+<div id="debug"></div>
+<script>
+/* The NODE Institute signage player.
+   Plays the slides listed in slides.json in order, re-reads slides.json at the start of every
+   round (and at least every CHECK_MS), switches to a new set only after all its images have
+   loaded, and keeps playing the last good set when the network is down. Publish a new set with
+   indesign-mcp\publish_signage_web.py; the screen never needs touching. */
+const PLAYER = 1;                    // bump together with "player" in slides.json to force a reload
+const CHECK_MS = 5 * 60 * 1000;      // re-read slides.json at least this often
+const FALLBACK_DURATION = 10;        // seconds per slide if slides.json does not say
+const STORE = "tni-signage-manifest";
+const DEBUG = /[?&]debug\b/.test(location.search);
+
+const layers = [document.getElementById("a"), document.getElementById("b")];
+const dbg = document.getElementById("debug");
+let front = 0, set = null, pending = null, index = -1, lastCheck = 0, lastError = "", started = Date.now();
+
+function log(msg) { lastError = msg; render(); }
+function render() {
+  if (!DEBUG) return;
+  dbg.style.display = "block";
+  dbg.textContent = [
+    "set " + (set ? set.id + " (" + set.slides.length + " slides, " + set.published + ")" : "none"),
+    "slide " + (index + 1),
+    "checked " + (lastCheck ? new Date(lastCheck).toLocaleTimeString() : "never"),
+    lastError ? "note: " + lastError : ""
+  ].join("\n");
+}
+
+function preload(src) {
+  return new Promise((resolve, reject) => {
+    const im = new Image();
+    im.onload = () => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()).then(() => resolve(src));
+    im.onerror = () => reject(new Error("image failed: " + src));
+    im.src = src;
+  });
+}
+
+async function check() {
+  lastCheck = Date.now();
+  try {
+    const r = await fetch("slides.json?t=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error("slides.json HTTP " + r.status);
+    const m = await r.json();
+    if (m.player && m.player !== PLAYER) { location.reload(); return; }
+    if (!m.slides || !m.slides.length) throw new Error("slides.json has no slides");
+    if (set && m.id === set.id) { lastError = ""; return; }
+    await Promise.all(m.slides.map(s => preload(s.src)));   // only switch to a set that is fully loaded
+    pending = m;
+    try { localStorage.setItem(STORE, JSON.stringify(m)); } catch (e) {}
+    pruneCache(m);
+    lastError = "";
+  } catch (e) {
+    log(e.message || String(e));                              // offline or bad publish: keep the current set
+  }
+}
+
+async function pruneCache(m) {
+  if (!("caches" in window)) return;
+  try {
+    const keep = new Set(m.slides.map(s => new URL(s.src, location.href).href));
+    const c = await caches.open("tni-signage-slides");
+    for (const req of await c.keys()) if (!keep.has(req.url)) await c.delete(req);
+  } catch (e) {}
+}
+
+function duration(s) { return 1000 * (s.duration || (set && set.duration) || FALLBACK_DURATION); }
+
+async function next() {
+  const wrap = !set || index < 0 || index + 1 >= set.slides.length;
+  if (wrap || Date.now() - lastCheck > CHECK_MS) await check();
+  if (pending && wrap) { set = pending; pending = null; index = -1; }
+  if (!set) { setTimeout(next, 15000); return; }             // nothing to show yet: retry
+  index = (index + 1) % set.slides.length;
+  const s = set.slides[index], back = layers[1 - front];
+  back.onload = () => { back.classList.add("on"); layers[front].classList.remove("on"); front = 1 - front; render(); };
+  back.onerror = () => log("cannot show " + s.src);
+  back.src = s.src;
+  // a daily reload around 4 am keeps a long-running WebView fresh
+  if (Date.now() - started > 20 * 3600 * 1000 && new Date().getHours() === 4 && navigator.onLine) { location.reload(); return; }
+  setTimeout(next, duration(s));
+}
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+try { const saved = JSON.parse(localStorage.getItem(STORE) || "null"); if (saved && saved.slides) set = saved; } catch (e) {}
+next();
+</script>
+</body>
+</html>
