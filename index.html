@@ -25,11 +25,13 @@
 <div id="debug"></div>
 <script>
 /* The NODE Institute signage player.
-   Plays the slides listed in slides.json in order, re-reads slides.json at the start of every
-   round (and at least every CHECK_MS), switches to a new set only after all its images have
-   loaded, and keeps playing the last good set when the network is down. Publish a new set with
+   Plays the slides and videos listed in slides.json in order, re-reads slides.json at the start of
+   every round (and at least every CHECK_MS), switches to a new set only after all its images are
+   loaded and its videos are downloaded to the screen, and keeps playing the last good set when the
+   network is down. Publish a new set with
    indesign-mcp\publish_signage_web.py; the screen never needs touching. */
-const PLAYER = 2;                    // bump together with "player" in slides.json to force a reload
+const PLAYER = 3;                    // bump together with "player" in slides.json to force a reload
+const CACHE = "tni-signage-slides";  // slide images and videos (sw.js serves from it)
 const CHECK_MS = 5 * 60 * 1000;      // re-read slides.json at least this often
 const FALLBACK_DURATION = 30;        // seconds per slide if slides.json does not say
 const STORE = "tni-signage-manifest";
@@ -38,7 +40,7 @@ const DEBUG = /[?&]debug\b/.test(location.search);
 const layers = [document.getElementById("a"), document.getElementById("b")];
 const vid = document.getElementById("v");
 const dbg = document.getElementById("debug");
-let front = 0, set = null, pending = null, index = -1, lastCheck = 0, lastError = "", started = Date.now();
+let front = 0, set = null, pending = null, index = -1, lastCheck = 0, lastError = "", note = "", started = Date.now();
 
 function log(msg) { lastError = msg; render(); }
 function render() {
@@ -48,6 +50,8 @@ function render() {
     "set " + (set ? set.id + " (" + set.slides.length + " slides, " + set.published + ")" : "none"),
     "slide " + (index + 1),
     "checked " + (lastCheck ? new Date(lastCheck).toLocaleTimeString() : "never"),
+    pending ? "next set " + pending.id + " ready" : "",
+    note,
     lastError ? "note: " + lastError : ""
   ].join("\n");
 }
@@ -61,7 +65,36 @@ function preload(src) {
   });
 }
 
-async function check() {
+/* Download a video completely into the cache (once); sw.js then serves it to the <video> element
+   from the screen's own storage, offline too. */
+async function cacheVideo(src) {
+  if (!("caches" in window)) return;
+  const url = new URL(src, location.href).href;
+  const c = await caches.open(CACHE);
+  if (await c.match(url)) return;
+  const r = await fetch(url, { cache: "no-store" });
+  if (r.status !== 200) throw new Error("video download failed: " + src + " (HTTP " + r.status + ")");
+  await c.put(url, r);
+}
+
+async function cacheVideos(m) {
+  const videos = m.slides.filter(s => s.type === "video");
+  for (let i = 0; i < videos.length; i++) {
+    note = "downloading video " + (i + 1) + " of " + videos.length; render();
+    await cacheVideo(videos[i].src);
+  }
+  note = ""; render();
+}
+
+/* Read slides.json and get a new set ready in the background while the current one keeps
+   playing: images loaded and every video downloaded before the switch (the first set ever
+   starts as soon as its images are there and fetches its videos while it plays). */
+let checking = null;
+function check() {
+  if (!checking) checking = doCheck().finally(() => { checking = null; });
+  return checking;
+}
+async function doCheck() {
   lastCheck = Date.now();
   try {
     const r = await fetch("slides.json?t=" + Date.now(), { cache: "no-store" });
@@ -69,12 +102,11 @@ async function check() {
     const m = await r.json();
     if (m.player && m.player !== PLAYER) { location.reload(); return; }
     if (!m.slides || !m.slides.length) throw new Error("slides.json has no slides");
-    if (set && m.id === set.id) { lastError = ""; return; }
-    // only switch to a set whose images are all loaded; videos stream from Nextcloud when they play
+    if ((set && m.id === set.id) || (pending && m.id === pending.id)) { lastError = ""; return; }
     await Promise.all(m.slides.filter(s => s.type !== "video").map(s => preload(s.src)));
+    if (set) await cacheVideos(m); else cacheVideos(m).catch(e => log(e.message || String(e)));
     pending = m;
     try { localStorage.setItem(STORE, JSON.stringify(m)); } catch (e) {}
-    pruneCache(m);
     lastError = "";
   } catch (e) {
     log(e.message || String(e));                              // offline or bad publish: keep the current set
@@ -85,7 +117,7 @@ async function pruneCache(m) {
   if (!("caches" in window)) return;
   try {
     const keep = new Set(m.slides.map(s => new URL(s.src, location.href).href));
-    const c = await caches.open("tni-signage-slides");
+    const c = await caches.open(CACHE);
     for (const req of await c.keys()) if (!keep.has(req.url)) await c.delete(req);
   } catch (e) {}
 }
@@ -123,8 +155,10 @@ function duration(s) { return 1000 * (s.duration || (set && set.duration) || FAL
 
 async function next() {
   const wrap = !set || index < 0 || index + 1 >= set.slides.length;
-  if (wrap || Date.now() - lastCheck > CHECK_MS) await check();
-  if (pending && wrap) { set = pending; pending = null; index = -1; }
+  if (wrap || Date.now() - lastCheck > CHECK_MS) {
+    if (set) check(); else await check();                     // never hold up a running show for a download
+  }
+  if (pending && wrap) { set = pending; pending = null; index = -1; pruneCache(set); }
   if (!set) { setTimeout(next, 15000); return; }             // nothing to show yet: retry
   index = (index + 1) % set.slides.length;
   const s = set.slides[index];
@@ -144,6 +178,7 @@ async function next() {
 }
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});  // ask the browser not to evict the videos
 try { const saved = JSON.parse(localStorage.getItem(STORE) || "null"); if (saved && saved.slides) set = saved; } catch (e) {}
 next();
 </script>
