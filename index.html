@@ -3,6 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>/* iiSignage may show this page from a copy on its own server, where "slides.json" and "slides/…"
+   do not exist (seen as "slides.json HTTP 404", 2 Oct): anywhere but GitHub Pages or a local test
+   server, resolve every address against the real site */
+if (!/(^|\.)github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) {
+  var base = document.createElement("base");
+  base.href = "https://thenodeinstitute.github.io/tni-signage/";
+  document.head.insertBefore(base, document.head.firstChild);
+}</script>
 <script>/* test switch ?novp: drop the viewport tag (iiSignage editor doubled the element's size, 2 Oct) */
 if (/[?&]novp\b/.test(location.search)) { var vp = document.querySelector('meta[name="viewport"]'); if (vp) vp.parentNode.removeChild(vp); }</script>
 <meta name="robots" content="noindex, nofollow">
@@ -28,7 +36,6 @@ if (/[?&]novp\b/.test(location.search)) { var vp = document.querySelector('meta[
 <body>
 <img class="slide" id="a" alt="">
 <img class="slide" id="b" alt="">
-<video class="slide" id="v" muted playsinline preload="auto"></video>
 <div id="debug"></div>
 <div id="status">TNI Signage · starting…</div>
 <script>
@@ -59,7 +66,6 @@ const NOSW = /[?&]nosw\b/.test(location.search);
 const STILL = /[?&]still\b/.test(location.search);
 
 const layers = [document.getElementById("a"), document.getElementById("b")];
-const vid = document.getElementById("v");
 const dbg = document.getElementById("debug");
 let front = 0, set = null, pending = null, index = -1, lastCheck = 0, lastError = "", note = "", started = Date.now();
 
@@ -170,6 +176,7 @@ async function pruneCache(m) {
 /* Play one video full screen, muted, to its end. Resolves false when it cannot start within
    20 s (offline, missing file), so the player moves on instead of hanging on a black screen. */
 function playVideo(s) {
+  const vid = videoElement();
   return new Promise(resolve => {
     let done = false;
     const finish = ok => {
@@ -190,10 +197,32 @@ function playVideo(s) {
   });
 }
 
+/* The <video> element exists only while a video plays. An empty one in the page from the start made
+   saving a playlist in the iiSignage editor crawl (2 Oct): its thumbnail capture seems to wait for
+   every video in the page to load, and an empty one never does. */
+let vid = null;
+function videoElement() {
+  if (!vid) {
+    vid = document.createElement("video");
+    vid.className = "slide";
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.setAttribute("playsinline", "");
+    vid.preload = "auto";
+    document.body.insertBefore(vid, dbg);
+  }
+  return vid;
+}
+
 function stopVideo() {
-  if (!vid.classList.contains("on")) return;
-  vid.classList.remove("on");
-  setTimeout(() => { if (!vid.classList.contains("on")) { vid.pause(); vid.removeAttribute("src"); vid.load(); } }, 900);
+  if (!vid || !vid.classList.contains("on")) return;
+  const old = vid;
+  old.classList.remove("on");
+  setTimeout(() => {
+    if (old.classList.contains("on")) return;     // a following video reused it
+    old.pause(); old.removeAttribute("src"); old.load(); old.remove();
+    if (vid === old) vid = null;
+  }, 900);
 }
 
 function duration(s) { return 1000 * (s.duration || (set && set.duration) || FALLBACK_DURATION); }
