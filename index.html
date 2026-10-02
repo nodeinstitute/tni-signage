@@ -48,6 +48,7 @@ const PLAYER = 3;                    // bump together with "player" in slides.js
 const CACHE = "tni-signage-slides";  // slide images and videos (sw.js serves from it)
 const CHECK_MS = 5 * 60 * 1000;      // re-read slides.json at least this often
 const FALLBACK_DURATION = 30;        // seconds per slide if slides.json does not say
+const FIRST_VIDEO_DELAY = 2 * 60 * 1000;  // first visit: wait before downloading videos (editor previews)
 const STORE = "tni-signage-manifest";
 const DEBUG = /[?&]debug\b/.test(location.search);
 
@@ -136,7 +137,13 @@ async function doCheck() {
     let loaded = 0;
     if (!set) status("loading slides 0 of " + images.length);
     await Promise.all(images.map(s => preload(s.src).then(x => { loaded++; if (!set) status("loading slides " + loaded + " of " + images.length); return x; })));
-    if (set) await cacheVideos(m); else cacheVideos(m).catch(e => log(e.message || String(e)));
+    if (set) await cacheVideos(m);
+    else {
+      // first visit: start the ~100 MB video download only after 2 minutes, so a short visit (the
+      // iiSignage editor rendering a preview while saving) does not pull all the videos; until a video
+      // is downloaded it streams when its turn comes
+      setTimeout(() => cacheVideos(m).catch(e => log(e.message || String(e))), FIRST_VIDEO_DELAY);
+    }
     pending = m;
     try { localStorage.setItem(STORE, JSON.stringify(m)); } catch (e) {}
     lastError = "";
