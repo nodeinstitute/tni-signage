@@ -11,8 +11,6 @@ if (!/(^|\.)github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) {
   base.href = "https://thenodeinstitute.github.io/tni-signage/";
   document.head.insertBefore(base, document.head.firstChild);
 }</script>
-<script>/* test switch ?novp: drop the viewport tag (iiSignage editor doubled the element's size, 2 Oct) */
-if (/[?&]novp\b/.test(location.search)) { var vp = document.querySelector('meta[name="viewport"]'); if (vp) vp.parentNode.removeChild(vp); }</script>
 <meta name="robots" content="noindex, nofollow">
 <title>TNI Signage</title>
 <style>
@@ -61,9 +59,6 @@ const FIRST_VIDEO_DELAY = 2 * 60 * 1000;  // first visit: wait before downloadin
 const FRAMED_DELAY = 60 * 1000;      // inside a frame (iiSignage editor): show one still this long first
 const STORE = "tni-signage-manifest";
 const DEBUG = /[?&]debug\b/.test(location.search);
-// test switches (iiSignage save problem, 2 Oct): ?nosw = no offline storage, ?still = first slide only, forever
-const NOSW = /[?&]nosw\b/.test(location.search);
-const STILL = /[?&]still\b/.test(location.search);
 
 const layers = [document.getElementById("a"), document.getElementById("b")];
 const dbg = document.getElementById("debug");
@@ -209,7 +204,7 @@ function videoElement() {
     vid.playsInline = true;
     vid.setAttribute("playsinline", "");
     vid.preload = "auto";
-    document.body.insertBefore(vid, dbg);
+    document.body.appendChild(vid);   // above the slides; #status and #debug stay on top (z-index)
   }
   return vid;
 }
@@ -252,8 +247,8 @@ async function next() {
 }
 
 function start() {
-  if (!NOSW && "serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
-  if (!NOSW && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});  // ask the browser not to evict the videos
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});  // ask the browser not to evict the videos
   try { const saved = JSON.parse(localStorage.getItem(STORE) || "null"); if (saved && saved.slides) set = saved; } catch (e) {}
   next();
 }
@@ -272,9 +267,7 @@ async function preview() {
 }
 
 const FRAMED = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
-if (STILL) {
-  preview();
-} else if (FRAMED && !/[?&]full\b/.test(location.search)) {
+if (FRAMED &&!/[?&]full\b/.test(location.search)) {
   preview();
   setTimeout(start, FRAMED_DELAY);   // the first real slide fades in over the still (layer a)
 } else {
