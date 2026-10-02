@@ -56,7 +56,8 @@ const CACHE = "tni-signage-slides";  // slide images and videos (sw.js serves fr
 const CHECK_MS = 5 * 60 * 1000;      // re-read slides.json at least this often
 const FALLBACK_DURATION = 30;        // seconds per slide if slides.json does not say
 const FIRST_VIDEO_DELAY = 2 * 60 * 1000;  // first visit: wait before downloading videos (editor previews)
-const FRAMED_DELAY = 60 * 1000;      // inside a frame (iiSignage editor): show one still this long first
+const FRAMED_DELAY = 10 * 1000;      // inside a frame (iiSignage editor / preview): show one still this long first
+                                     // (was 60 s before the real cause of slow saves, an empty <video>, was found)
 const STORE = "tni-signage-manifest";
 const DEBUG = /[?&]debug\b/.test(location.search);
 
