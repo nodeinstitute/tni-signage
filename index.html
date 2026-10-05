@@ -77,14 +77,19 @@ function render() {
     "checked " + (lastCheck ? new Date(lastCheck).toLocaleTimeString() : "never"),
     pending ? "next set " + pending.id + " ready" : "",
     note,
-    lastError ? "note: " + lastError : ""
+    lastError ? "note: " + lastError : "",
+    (paused ? "PAUSED · " : "") + "→ / click right: next · ← / click left: back · space: pause"
   ].join("\n");
 }
 
 function preload(src) {
   return new Promise((resolve, reject) => {
     const im = new Image();
-    im.onload = () => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()).then(() => resolve(src));
+    // decode() can wait forever while the page is not visible (a background tab): give it 3 s at most
+    im.onload = () => Promise.race([
+      im.decode ? im.decode().catch(() => {}) : Promise.resolve(),
+      new Promise(r => setTimeout(r, 3000))
+    ]).then(() => resolve(src));
     im.onerror = () => reject(new Error("image failed: " + src));
     im.src = src;
   });
@@ -179,8 +184,10 @@ function playVideo(s) {
       if (done) return; done = true;
       clearTimeout(startTimer); clearTimeout(endTimer);
       vid.onplaying = vid.onended = vid.onerror = null;
+      endVideo = null;
       resolve(ok);
     };
+    endVideo = () => finish(true);                 // test mode: skip the rest of the video
     const startTimer = setTimeout(() => finish(false), 20000);
     const endTimer = setTimeout(() => finish(true), 1000 * ((s.duration || 180) + 20));
     vid.onplaying = () => { clearTimeout(startTimer); vid.classList.add("on"); layers.forEach(l => l.classList.remove("on")); statusEl.style.display = "none"; render(); };
@@ -235,6 +242,8 @@ async function next() {
   if (s.type === "video") {
     render();
     if (!(await playVideo(s))) log("video skipped: " + (s.name || s.src));
+    if (stepAfterVideo) { const d = stepAfterVideo; stepAfterVideo = 0; go(d); return; }
+    if (paused) return;
     next();
     return;
   }
@@ -244,8 +253,37 @@ async function next() {
   back.src = s.src;
   // a daily reload around 4 am keeps a long-running WebView fresh
   if (Date.now() - started > 20 * 3600 * 1000 && new Date().getHours() === 4 && navigator.onLine) { location.reload(); return; }
-  setTimeout(next, duration(s));
+  schedule(duration(s));
 }
+
+let timer = null, paused = false, endVideo = null, stepAfterVideo = 0;
+function schedule(ms) { clearTimeout(timer); timer = paused ? null : setTimeout(next, ms); }
+
+/* Stepping through the slides when the page is open in a browser or on a phone (the screens have no
+   input, so they just play): → / tap or click the right half = next, ← / left half = previous,
+   space = pause / resume. Back to normal timing after the next slide's own duration. */
+function go(dir) {
+  clearTimeout(timer);
+  if (endVideo) { stepAfterVideo = dir; endVideo(); return; }     // a video is playing: end it first
+  // next() shows slides[index + 1]; to go back one, step the index back two (wrapping around)
+  if (dir < 0 && set) index = ((index - 2) % set.slides.length + set.slides.length) % set.slides.length;
+  next();
+}
+function togglePause() {
+  paused = !paused;
+  if (vid && vid.classList.contains("on")) paused ? vid.pause() : vid.play();
+  else if (!paused) schedule(2000);
+  else clearTimeout(timer);
+  render();
+}
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); go(1); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(-1); }
+  else if (e.key === " ") { e.preventDefault(); togglePause(); }
+});
+document.addEventListener("click", e => go(e.clientX > window.innerWidth / 2 ? 1 : -1));
+// a visible pointer only once a mouse is actually used (the screens never show one)
+document.addEventListener("mousemove", () => { document.body.style.cursor = "pointer"; }, { once: true });
 
 function start() {
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
