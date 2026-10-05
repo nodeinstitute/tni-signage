@@ -47,17 +47,11 @@
   "398da76b4db119ec737a3d71d2a9ffa2": {
    "src": "slides/addc2ee844bfcc74.png"
   },
-  "83724389b69effb40e518da72ada5c70": {
-   "src": "slides/4e879c6044a12310.jpg"
-  },
   "4464ac56a0c612daae37fa93c91d4177": {
    "src": "slides/623f6b7563fb0cb1.jpg"
   },
   "b6bb99036604c6ea47aea8f1f3dcf203": {
    "src": "slides/71aaedf184705bcf.jpg"
-  },
-  "973c458c4385dbfc6a69364b372d2d5e": {
-   "src": "slides/beed4974a1774e87.jpg"
   },
   "3734ae31d8df43da9cfef83e2c7422e9": {
    "src": "slides/55e1b8ac7342cb16.jpg"
@@ -85,7 +79,76 @@
    "src": "videos/58fa90e2cc982791.mp4",
    "duration": 22.7,
    "size": 15454709
+  },
+  "2ccf3865bf29bbc530b722dfc677d9e3": {
+   "src": "slides/8973816037680a3f.png"
+  },
+  "6182b6f8900f9db081f326e2ebe4d9c7": {
+   "src": "slides/53e7f771375fc931.png"
+  },
+  "ea3e5aeab3da92409af7904502b6d117": {
+   "src": "slides/0e154e1cceedf03e.png"
+  },
+  "ce348d9e0e38886712f6676d814d6e3d": {
+   "src": "slides/bfd8832a94ff6d39.png"
+  },
+  "a08faaaf5f7e5e5357dad291a0426d7a": {
+   "src": "slides/1c7b472d38afca37.png"
+  },
+  "a05180a377103cb16ea40d9f4763b478": {
+   "src": "slides/db69ac93b3d96c05.jpg"
+  },
+  "6eee8526de76850181fa3d4368ecb5af": {
+   "src": "slides/5f1d18c17c6be13f.jpg"
+  },
+  "eee84b97db61dee53dc79d884f0de62e": {
+   "src": "slides/69c186da9e44226b.jpg"
+  },
+  "1be073bce344ceeea3c3d95c9881d341": {
+   "src": "slides/26a0b3a0a083b609.jpg"
+  },
+  "3c448c68ad7925777e9ca240d184a7dc": {
+   "src": "slides/51de172a5f7a41f2.png"
+  },
+  "4e9c8dfe75deada2836f2ab9e154ec36": {
+   "src": "slides/af8e3ec1eaff893a.png"
+  },
+  "d17a34238adba1bb2657ce60cbbef54a": {
+   "src": "slides/addc2ee844bfcc74.png"
+  },
+  "b3c3d3521437d0f002549a4649c92cde": {
+   "src": "slides/46fd968eecc2bf08.jpg"
+  },
+  "1d4e3441c3d9ddfac0e55c3b822c160b": {
+   "src": "slides/623f6b7563fb0cb1.jpg"
+  },
+  "a8db05ea947eaaf0202e2345c78601a1": {
+   "src": "slides/71aaedf184705bcf.jpg"
+  },
+  "f9ec2b3b1ed03240af5b9c6bcd677bd6": {
+   "src": "slides/03ff9efeb1cafeaf.jpg"
+  },
+  "e18619c9199ae7180d8c6927ae26f505": {
+   "src": "slides/55e1b8ac7342cb16.jpg"
+  },
+  "6fc8793fd490299765e052ecbb225165": {
+   "src": "slides/e4d926e6a1b03f2d.jpg"
+  },
+  "4ffd3efaf501cc0c3e1c1728b178e3ae": {
+   "src": "slides/6ccf457153ecd6fc.jpg"
+  },
+  "d1e61b39589bff64ac694ac6c1ed7c3a": {
+   "src": "slides/60e18b847c4692f7.jpg"
+  },
+  "0e309a3497c990896ae3080a2c9d3bf3": {
+   "src": "slides/83d9d61819fcbfe5.png"
+  },
+  "1a59b9b054b59fc6546e9be524f72af1": {
+   "src": "slides/8a93fd5074077205.png"
+  },
+  "8905d2a195d162dbb01bd40d40c191b8": {
+   "src": "slides/a72770566bdce09a.png"
   }
  },
- "published": "75924d160d49005f3ce7aa7cc56ba74b0402fac6"
+ "published": "a0c0afd1b70b277dd1493f52ee814f80abec71ff"
 }
