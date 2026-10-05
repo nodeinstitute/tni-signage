@@ -1,4 +1,91 @@
 {
  "seen": "75924d160d49005f3ce7aa7cc56ba74b0402fac6",
- "seen_at": "2026-10-05 08:21 UTC"
+ "seen_at": "2026-10-05 08:21 UTC",
+ "files": {
+  "65877bcc49b7b4aff9f076e6ab8bcc16": {
+   "src": "slides/8973816037680a3f.png"
+  },
+  "a2c814b9e5266f6716cd798ae76e141a": {
+   "src": "slides/0e154e1cceedf03e.png"
+  },
+  "2d0e38d56b54521eb5d23df5934c8c96": {
+   "src": "slides/53e7f771375fc931.png"
+  },
+  "b465b13512fda2824d24c4a9587fb4c3": {
+   "src": "slides/bfd8832a94ff6d39.png"
+  },
+  "73f7326a65c2a8b83fb823b8eab29e8d": {
+   "type": "video",
+   "src": "videos/614798e6014ddc5a.mp4",
+   "duration": 90.0,
+   "size": 63054702
+  },
+  "d72087520f679500a0e273f1f6bf3b18": {
+   "src": "slides/1c7b472d38afca37.png"
+  },
+  "db955d001479a7b91054a6d5b71ffd7c": {
+   "src": "slides/db69ac93b3d96c05.jpg"
+  },
+  "f5f85382bd7a824d489a6351bbf05b01": {
+   "src": "slides/5f1d18c17c6be13f.jpg"
+  },
+  "c3fc511c645f029a86c399db0a704435": {
+   "src": "slides/69c186da9e44226b.jpg"
+  },
+  "2e30ff7c683a13fc61c53098fe60890d": {
+   "type": "video",
+   "src": "videos/1a051ba620eace51.mp4",
+   "duration": 37.0,
+   "size": 27087978
+  },
+  "b3f0ad75121dfbb4612acfc13533c24e": {
+   "src": "slides/51de172a5f7a41f2.png"
+  },
+  "c93f88bffb47b826421bf57eebb89c08": {
+   "src": "slides/af8e3ec1eaff893a.png"
+  },
+  "398da76b4db119ec737a3d71d2a9ffa2": {
+   "src": "slides/addc2ee844bfcc74.png"
+  },
+  "83724389b69effb40e518da72ada5c70": {
+   "src": "slides/4e879c6044a12310.jpg"
+  },
+  "4464ac56a0c612daae37fa93c91d4177": {
+   "src": "slides/623f6b7563fb0cb1.jpg"
+  },
+  "b6bb99036604c6ea47aea8f1f3dcf203": {
+   "src": "slides/71aaedf184705bcf.jpg"
+  },
+  "973c458c4385dbfc6a69364b372d2d5e": {
+   "src": "slides/beed4974a1774e87.jpg"
+  },
+  "3734ae31d8df43da9cfef83e2c7422e9": {
+   "src": "slides/55e1b8ac7342cb16.jpg"
+  },
+  "982784828a63de51e941f919105acb6e": {
+   "src": "slides/e4d926e6a1b03f2d.jpg"
+  },
+  "7f701e88a82f568ab2628b5ec45e2bd8": {
+   "src": "slides/6ccf457153ecd6fc.jpg"
+  },
+  "8ea649d8629d41dd198026e41ef25a3e": {
+   "src": "slides/60e18b847c4692f7.jpg"
+  },
+  "faf8deed131e74fd290ac12c15745463": {
+   "src": "slides/83d9d61819fcbfe5.png"
+  },
+  "cdaed12b66d5b5eea425cbb72f8af74f": {
+   "src": "slides/8a93fd5074077205.png"
+  },
+  "d84ea9157172b3342ad319088af47a6d": {
+   "src": "slides/a72770566bdce09a.png"
+  },
+  "d48b1a8f25cf24c45a70a09662551d2a": {
+   "type": "video",
+   "src": "videos/58fa90e2cc982791.mp4",
+   "duration": 22.7,
+   "size": 15454709
+  }
+ },
+ "published": "75924d160d49005f3ce7aa7cc56ba74b0402fac6"
 }

@@ -1,117 +1,117 @@
 {
  "id": "e1cf75b370a8",
- "published": "2026-10-02 22:18",
+ "published": "2026-10-05 08:24 UTC",
  "player": 3,
  "duration": 10.0,
  "slides": [
   {
    "src": "slides/8973816037680a3f.png",
-   "name": "TNI_Signage_2026-10-02_UTM_01.png"
+   "name": "001_TNI_Signage_2026-10-02_UTM_01.png"
   },
   {
    "src": "slides/0e154e1cceedf03e.png",
-   "name": "TNI_Signage_2026-10-02_UTM_02.png"
+   "name": "002_TNI_Signage_2026-10-02_UTM_02.png"
   },
   {
    "src": "slides/53e7f771375fc931.png",
-   "name": "TNI_Signage_2026-10-02_UTM_03.png"
+   "name": "003_TNI_Signage_2026-10-02_UTM_03.png"
   },
   {
    "src": "slides/bfd8832a94ff6d39.png",
-   "name": "TNI_Signage_2026-10-02_UTM_04.png"
+   "name": "004_TNI_Signage_2026-10-02_UTM_04.png"
   },
   {
    "type": "video",
    "src": "videos/614798e6014ddc5a.mp4",
-   "name": "The_NODE_Showreel_Vertical_V01_signage.mp4",
    "duration": 90.0,
-   "size": 63054702
+   "size": 63054702,
+   "name": "005_The_NODE_Showreel_Vertical_V01_signage.mp4"
   },
   {
    "src": "slides/1c7b472d38afca37.png",
-   "name": "TNI_Signage_2026-10-02_UTM_05.png"
+   "name": "006_TNI_Signage_2026-10-02_UTM_05.png"
   },
   {
    "src": "slides/db69ac93b3d96c05.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_06.png"
+   "name": "007_TNI_Signage_2026-10-02_UTM_06.png"
   },
   {
    "src": "slides/5f1d18c17c6be13f.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_07.png"
+   "name": "008_TNI_Signage_2026-10-02_UTM_07.png"
   },
   {
    "src": "slides/69c186da9e44226b.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_08.png"
+   "name": "009_TNI_Signage_2026-10-02_UTM_08.png"
   },
   {
    "type": "video",
    "src": "videos/1a051ba620eace51.mp4",
-   "name": "TNI_RTXXXVI_CM_Vert_signage.mp4",
    "duration": 37.0,
-   "size": 27087978
+   "size": 27087978,
+   "name": "010_TNI_RTXXXVI_CM_Vert_signage.mp4"
   },
   {
    "src": "slides/51de172a5f7a41f2.png",
-   "name": "TNI_Signage_2026-10-02_UTM_09.png"
+   "name": "011_TNI_Signage_2026-10-02_UTM_09.png"
   },
   {
    "src": "slides/af8e3ec1eaff893a.png",
-   "name": "TNI_Signage_2026-10-02_UTM_10.png"
+   "name": "012_TNI_Signage_2026-10-02_UTM_10.png"
   },
   {
    "src": "slides/addc2ee844bfcc74.png",
-   "name": "TNI_Signage_2026-10-02_UTM_11.png"
+   "name": "013_TNI_Signage_2026-10-02_UTM_11.png"
   },
   {
    "src": "slides/4e879c6044a12310.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_12.png"
+   "name": "014_TNI_Signage_2026-10-02_UTM_12.png"
   },
   {
    "src": "slides/623f6b7563fb0cb1.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_13.png"
+   "name": "015_TNI_Signage_2026-10-02_UTM_13.png"
   },
   {
    "src": "slides/71aaedf184705bcf.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_14.png"
+   "name": "016_TNI_Signage_2026-10-02_UTM_14.png"
   },
   {
    "src": "slides/beed4974a1774e87.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_15.png"
+   "name": "017_TNI_Signage_2026-10-02_UTM_15.png"
   },
   {
    "src": "slides/55e1b8ac7342cb16.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_16.png"
+   "name": "018_TNI_Signage_2026-10-02_UTM_16.png"
   },
   {
    "src": "slides/e4d926e6a1b03f2d.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_17.png"
+   "name": "019_TNI_Signage_2026-10-02_UTM_17.png"
   },
   {
    "src": "slides/6ccf457153ecd6fc.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_18.png"
+   "name": "020_TNI_Signage_2026-10-02_UTM_18.png"
   },
   {
    "src": "slides/60e18b847c4692f7.jpg",
-   "name": "TNI_Signage_2026-10-02_UTM_19.png"
+   "name": "021_TNI_Signage_2026-10-02_UTM_19.png"
   },
   {
    "src": "slides/83d9d61819fcbfe5.png",
-   "name": "TNI_Signage_2026-10-02_UTM_20.png"
+   "name": "022_TNI_Signage_2026-10-02_UTM_20.png"
   },
   {
    "src": "slides/8a93fd5074077205.png",
-   "name": "TNI_Signage_2026-10-02_UTM_21.png"
+   "name": "023_TNI_Signage_2026-10-02_UTM_21.png"
   },
   {
    "src": "slides/a72770566bdce09a.png",
-   "name": "TNI_Signage_2026-10-02_UTM_22.png"
+   "name": "024_TNI_Signage_2026-10-02_UTM_22.png"
   },
   {
    "type": "video",
    "src": "videos/58fa90e2cc982791.mp4",
-   "name": "TNI_RTXXXV_CM_Vert_signage.mp4",
    "duration": 22.7,
-   "size": 15454709
+   "size": 15454709,
+   "name": "025_TNI_RTXXXV_CM_Vert_signage.mp4"
   }
  ]
 }
