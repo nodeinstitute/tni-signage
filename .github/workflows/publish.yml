@@ -7,7 +7,8 @@ name: Publish signage
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    # every 10 minutes, off the full hour (GitHub drops timed runs more often at :00 when it is busy)
+    - cron: "7,17,27,37,47,57 * * * *"
   workflow_dispatch:
   push:
     branches: [main]
