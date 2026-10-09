@@ -30,6 +30,8 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main   # the newest state, not the one from when the run was queued (9 Oct)
 
       - uses: actions/setup-python@v5
         with:
@@ -53,7 +55,15 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "Signage from Nextcloud: $(python -c "import json;m=json.load(open('slides.json'));print(m['id'], len(m['slides']), 'items')")"
-            git push
+            # another run may have pushed meanwhile (9 Oct: "rejected, fetch first"): rebase onto it and retry;
+            # if the two runs changed the same files, give up cleanly; the next run starts from the new state
+            ok=false
+            for i in 1 2 3; do
+              if git pull --rebase -q origin main && git push; then ok=true; break; fi
+              git rebase --abort 2>/dev/null || true
+              sleep 5
+            done
+            if [ "$ok" != true ]; then echo "::warning::could not push (another run changed the same files); the next run will catch up"; echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0; fi
             # a set was published only if slides.json changed (state.json alone = still waiting)
             if git diff --name-only HEAD~1 HEAD | grep -q '^slides.json$'; then echo "changed=true" >> "$GITHUB_OUTPUT"; else echo "changed=false" >> "$GITHUB_OUTPUT"; fi
           fi
