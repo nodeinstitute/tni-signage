@@ -1,14 +1,12 @@
-# Publishes the signage: every 10 minutes it reads the Nextcloud Play folder (share link in the
-# secret NEXTCLOUD_SHARE) and, once a change has been stable for one interval, updates slides.json,
-# slides/ and videos/, commits them and deploys the site. A push (e.g. a player change) or a manual
-# run ("Run workflow" on the Actions tab) deploys straight away.
+# Publishes the signage on request: it reads the Nextcloud Play folder (share link in the secret
+# NEXTCLOUD_SHARE), updates slides.json, slides/ and videos/, commits them and deploys the site.
+# Started by "Publish to screens" on the signage board, "Run workflow" on the Actions tab, or a push.
+# No timer (Stefan, 9 Oct: GitHub ran it only every few hours, and changes should go out when someone
+# says so). A commit message containing [skip ci] pushes without publishing.
 # Settings -> Pages -> Source must be "GitHub Actions".
 name: Publish signage
 
 on:
-  schedule:
-    # every 10 minutes, off the full hour (GitHub drops timed runs more often at :00 when it is busy)
-    - cron: "7,17,27,37,47,57 * * * *"
   workflow_dispatch:
   push:
     branches: [main]
@@ -43,6 +41,8 @@ jobs:
       - name: Read the Play folder
         env:
           NEXTCLOUD_SHARE: ${{ secrets.NEXTCLOUD_SHARE }}
+          # "Run workflow" or a push: publish at once; timer runs wait until the folder is stable
+          PUBLISH_NOW: ${{ github.event_name != 'schedule' && '1' || '0' }}
         run: python tools/sync_from_nextcloud.py
 
       - name: Commit changes

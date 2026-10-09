@@ -127,7 +127,10 @@ def main() -> None:
     if fingerprint == state.get("published"):
         print("nothing new in the Play folder")
         return
-    if fingerprint != state.get("seen"):
+    # A run started by hand ("Run workflow") or by a push means "the folder is ready": publish now.
+    # Only timer runs wait one interval for the folder to settle (9 Oct: one click instead of two).
+    publish_now = os.environ.get("PUBLISH_NOW") == "1"
+    if fingerprint != state.get("seen") and not publish_now:
         state["seen"] = fingerprint
         state["seen_at"] = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime())
         json.dump(state, open(STATE, "w", encoding="utf-8"), indent=1)
