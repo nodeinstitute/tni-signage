@@ -191,12 +191,12 @@
    "duration": 45.8,
    "size": 33122873
   },
-  "938612c7a790bfd6aba3ff2ea94d1d67": {
-   "src": "slides/50c78277791729f7.png"
-  },
-  "f2af1ca7c5219f3b313461576ece6487": {
-   "src": "slides/bab628fd0b441684.png"
+  "6213b8991cef721dfb265d9d3788b899": {
+   "type": "video",
+   "src": "videos/9a81e621e704dad4.mp4",
+   "duration": 60.3,
+   "size": 44077442
   }
  },
- "published": "435319b680cc43ec73d6f770b50d59bb6aa6c22a"
+ "published": "3d5aad3562f8bc65fe007632b67e4d9403d8ebb0"
 }

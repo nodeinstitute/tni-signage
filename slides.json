@@ -1,6 +1,6 @@
 {
- "id": "7201aed636f9",
- "published": "2026-10-14 14:43 UTC",
+ "id": "c500779ee99a",
+ "published": "2026-11-09 13:05 UTC",
  "player": 3,
  "duration": 10.0,
  "slides": [
@@ -67,6 +67,13 @@
   },
   {
    "type": "video",
+   "src": "videos/9a81e621e704dad4.mp4",
+   "duration": 60.3,
+   "size": 44077442,
+   "name": "014_TNI_RTXXXVIII_NLND_CM_Vert_signage.mp4"
+  },
+  {
+   "type": "video",
    "src": "videos/a8e29d022f60cbe5.mp4",
    "duration": 45.8,
    "size": 33122873,
@@ -79,14 +86,6 @@
   {
    "src": "slides/3c0d1cb5af816dea.jpg",
    "name": "016_TNI_Signage_2026-10-05_UTM_14.png"
-  },
-  {
-   "src": "slides/50c78277791729f7.png",
-   "name": "017_TNI_Signage_2026-10-14_UTM_12_vvvv-beginner-class-part-i-playful.png"
-  },
-  {
-   "src": "slides/bab628fd0b441684.png",
-   "name": "018_TNI_Signage_2026-10-14_UTM_13_vvvv-beginner-class-part-ii-foundations.png"
   },
   {
    "src": "slides/623f6b7563fb0cb1.jpg",
